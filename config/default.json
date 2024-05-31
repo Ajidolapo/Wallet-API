@@ -1,0 +1,4 @@
+{
+ "URI": "mongodb+srv://Ibukunoluwa:walletstuff@wallet.ermj0pd.mongodb.net/?retryWrites=true&w=majority&appName=wallet",
+ "JwtSecret":"no tell anybody"
+}
