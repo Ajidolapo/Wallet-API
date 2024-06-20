@@ -2,5 +2,7 @@
   "URI": "mongodb+srv://Ibukunoluwa:walletstuff@wallet.ermj0pd.mongodb.net/?retryWrites=true&w=majority&appName=wallet",
   "JwtSecret": "no tell anybody",
   "FPK": "FLWPUBK_TEST-9492999e7c7903d6433ff1826a5ddb0e-X",
-  "FSK": "FLWSECK_TEST-c7f02f831130ade5f071afe1326640f3-X"
+  "FSK": "FLWSECK_TEST-c7f02f831130ade5f071afe1326640f3-X",
+  "CLIENT_ID":"1081887121856-mnknoi91rmtsds3d38qltke1emfgp27p.apps.googleusercontent.com",
+  "CLIENT_SECRET":"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"
 }

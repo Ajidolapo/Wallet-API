@@ -7,6 +7,15 @@ const jwt = require("jsonwebtoken");
 const config = require("config");
 const moment = require("moment");
 const auth = require("../../middleware/auth");
+const {passport, generateToken} = require('./02Auth')
+
+router.get('/google', passport.authenticate('google',{scope:['profile', 'email']}))
+
+router.get('/google/callback', passport.authenticate('google',{failureRedirect:'/'}), (res, req)=>{
+  const token = generateToken(req.user)
+  res.redirect(`http://localhost:5000/api/auth`)
+})
+
 router.post(
   "/",
   [

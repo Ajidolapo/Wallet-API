@@ -1,32 +1,33 @@
 const express = require("express");
 const router = express.Router();
 const Wallet = require("../../models/Wallet");
+const User = require("../../models/Users")
 const auth = require("../../middleware/auth");
 const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const config = require("config");
-// const Flutterwave = require('flutterwave-node-v3')
-// const flw = new Flutterwave(config.get('FPK'), config.get('FSK'))
+const Flutterwave = require('flutterwave-node-v3')
+const flw = new Flutterwave(config.get('FPK'), config.get('FSK'))
 
-// router.post('/test', async(req, res)=>{
-//   try {
-//     const payload = {
-//       account_bank: "033",
-//       account_number: "226762015",
-//       amount: 5500,
-//       narration: "Akhlm Pstmn Trnsfr xx007",
-//       currency: "NGN",
-//       reference: "ahlm-pstmnyt02ens007_PMDU_1",
-//       callback_url: "https://www.flutterwave.com/ng/",
-//       debit_currency: "NGN",
-//     };
-//     const response = await flw.Transfer.initiate(payload)
-//     res.json(response)
-//   } catch (err) {
-//     console.error(err.message)
-//     res.status(500).send("Server Error")
-//   }
-// })
+router.post('/test', async(req, res)=>{
+  try {
+    const payload = {
+      account_bank: "033",
+      account_number: "226762015",
+      amount: 5500,
+      narration: "Akhlm Pstmn Trnsfr xx007",
+      currency: "NGN",
+      reference: "ahlm-pstmnt02ens007_PMDU_1",
+      callback_url: "https://www.flutterwave.com/ng/",
+      debit_currency: "NGN",
+    };
+    const response = await flw.Transfer.initiate(payload)
+    res.json(response)
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send("Server Error")
+  }
+})
 
 //Create wallet for USer
 router.post(
@@ -148,6 +149,77 @@ router.post(
     }
     try {
       const { amount, acc_num, bank, pin, description } = req.body;
+      const wallet = await Wallet.findOne({ user: req.user.id });
+      if (!wallet) {
+        return res.status(404).json({ msg: "Wallet does not exist" });
+      }
+      const test = await bcrypt.compare(String(pin), wallet.pin);
+      if (!test) {
+        return res.status(400).json({ errors: [{ msg: "Incorrect Pin" }] });
+      }
+      if (amount > wallet.balance) {
+        return res.status(400).json({ msg: "Insufficient funds" });
+      }
+      wallet.balance -= amount;
+      const newTransaction = {
+        amount,
+        t_type: "Debit",
+        ben_number: acc_num,
+        description: description,
+      };
+      wallet.transactions.push(newTransaction);
+      wallet.save();
+      res.json({
+        msg: `You have successfully sent N${amount}`,
+        newTransaction,
+      });
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Server Error");
+    }
+  }
+);
+
+//Get transaction history
+router.get('/history', auth, async(req, res)=>{
+  try {
+    const wallet = await Wallet.findOne({ user: req.user.id }).select("transactions")
+    if (!wallet) {
+      return res.status(404).json({ msg: "Wallet not availabe" });
+    }
+    res.json(wallet);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("server error");
+  }
+})
+
+//Transfer to a member of beneficiary
+router.post(
+  "/transfer/:ben_id",
+  [
+    auth,
+    [
+      check("amount", "Please input a valid amount").isNumeric(),
+      check("pin", "Enter a valid 4 digit pin")
+        .isNumeric()
+        .isLength({ min: 4, max: 4 }),
+    ],
+  ],
+  async (req, res) => {
+    const error = validationResult(req);
+    if (!error.isEmpty()) {
+      return res.status(400).json({ errors: error.array() });
+    }
+    try {
+      const user = await User.findById(req.user.id)
+      const ben = user.beneficiary.id(req.params.ben_id)
+      if(!ben){
+        return res.status(404).json({msg:"Invalid Beneficiary"})
+      }
+      const bank = ben.bank
+      const acc_num = ben.account_number
+      const { amount, pin, description } = req.body;
       const wallet = await Wallet.findOne({ user: req.user.id });
       if (!wallet) {
         return res.status(404).json({ msg: "Wallet does not exist" });
