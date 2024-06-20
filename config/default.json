@@ -1,5 +1,5 @@
 {
-  "URI": "mongodb+srv://Ibukunoluwa:walletstuff@wallet.ermj0pd.mongodb.net/?retryWrites=true&w=majority&appName=wallet",
+  "URI": "",
   "JwtSecret": "no tell anybody",
   "FPK": "FLWPUBK_TEST-9492999e7c7903d6433ff1826a5ddb0e-X",
   "FSK": "FLWSECK_TEST-c7f02f831130ade5f071afe1326640f3-X",
