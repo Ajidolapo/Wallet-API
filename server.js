@@ -5,7 +5,7 @@ const connectDB = require("./config/db");
 const users = require("./routes/api/users");
 const wallet = require("./routes/api/wallet");
 const auth = require("./routes/api/auth");
-
+require("dotenv").config()
 
 connectDB();
 app.use(express.json({ extended: false }));
@@ -23,15 +23,3 @@ app.listen(PORT, () => {
 
 module.exports=app
 
-// var request = require("request");
-// var options = {
-//   method: "GET",
-//   url: "https://api.flutterwave.com/v3/banks/NG",
-//   headers: {
-//     Authorization: "Bearer FLWSECK_TEST-SANDBOXDEMOKEY-X",
-//   },
-// };
-// request(options, function (error, response) {
-//   if (error) throw new Error(error);
-//   console.log(response.body);
-// });

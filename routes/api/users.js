@@ -9,11 +9,12 @@ const moment = require("moment");
 const auth = require("../../middleware/auth");
 const {passport, generateToken} = require('./02Auth')
 const nodemailer = require("nodemailer")
+require("dotenv").config()
 const transporter = nodemailer.createTransport({
   service:"gmail",
   auth:{
-    "user":config.get("EMAIL"),
-    pass:config.get("PASS")
+    "user":process.env.EMAIL,
+    pass:process.env.PASS
   }
 })
 
@@ -91,13 +92,13 @@ router.post(
       };
       const token = jwt.sign(
         payload,
-        config.get("JwtSecret"),
+        process.env.JwtSecret,
         {
           expiresIn: 300,
         }
       );
       transporter.sendMail({
-        from: config.get("EMAIL"),
+        from: process.env.EMAIL,
         to: user.email,
         subject: "Email Verification!",
         text: `Your verification link is http://localhost:5000/api/users/verify?token=${token}`
@@ -114,7 +115,7 @@ router.post(
 );
 
 router.get('/verify', async(req, res)=>{
-  const decoded = jwt.verify(req.query.token, config.get("JwtSecret"))
+  const decoded = jwt.verify(req.query.token, process.env("JwtSecret"))
   const owner = decoded.user
   const user = await User.findById(owner.id)
   if(!user){
