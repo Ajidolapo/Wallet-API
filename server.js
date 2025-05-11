@@ -5,7 +5,7 @@ const connectDB = require("./config/db");
 const users = require("./routes/api/users");
 const wallet = require("./routes/api/wallet");
 const auth = require("./routes/api/auth");
-const serverless = require("serverless-http")
+
 
 connectDB();
 app.use(express.json({ extended: false }));
@@ -21,7 +21,7 @@ app.listen(PORT, () => {
   console.log(`server running on http://localhost:${PORT}`);
 });
 
-module.exports.handler=serverless(app)
+module.exports=app
 
 // var request = require("request");
 // var options = {
