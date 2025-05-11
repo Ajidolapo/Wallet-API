@@ -4,10 +4,10 @@ const AppleStrategy = require("passport-apple").Strategy;
 const jwt = require("jsonwebtoken");
 const User = require("../../models/Users");
 const config = require("config")
-
+require("dotenv").config()
 passport.use(new GoogleStrategy({
- clientID: config.get('CLIENT_ID'),
- clientSecret: config.get("CLIENT_SECRET"),
+ clientID: process.env.CLIENT_ID,
+ clientSecret: process.env.CLIENT_SECRET,
  callbackURL: 'http://localhost:5000/api/users/google/callback'
 },
 async(accessToken, refreshToken, profile, done)=>{
@@ -42,7 +42,7 @@ passport.deserializeUser(async (id, done)=>{
 })
 
 const generateToken = (user) => {
- return jwt.sign({ user: { id: user.id } }, config.get("JwtSecret"), {expiresIn:'360000000'});
+ return jwt.sign({ user: { id: user.id } }, process.env.JwtSecret, {expiresIn:'360000000'});
 }
 
 module.exports = {passport, generateToken}

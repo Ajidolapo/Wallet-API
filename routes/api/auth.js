@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const { check, validationResult } = require("express-validator");
 const config = require("config");
 const bcrypt = require("bcryptjs");
-
+require("dotenv").config()
 //Get Logged in User
 router.get("/", auth, async (req, res) => {
   try {

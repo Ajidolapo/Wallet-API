@@ -7,27 +7,8 @@ const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const config = require("config");
 const Flutterwave = require('flutterwave-node-v3')
-// const flw = new Flutterwave(process.env.FPK, process.env.FSK)
 
-// router.post('/test', async(req, res)=>{
-//   try {
-//     const payload = {
-//       account_bank: "033",
-//       account_number: "226762015",
-//       amount: 5500,
-//       narration: "Akhlm Pstmn Trnsfr xx007",
-//       currency: "NGN",
-//       reference: "ahlm-pstmnt02ens007_PMDU_1",
-//       callback_url: "https://www.flutterwave.com/ng/",
-//       debit_currency: "NGN",
-//     };
-//     const response = await flw.Transfer.initiate(payload)
-//     res.json(response)
-//   } catch (err) {
-//     console.error(err.message)
-//     res.status(500).send("Server Error")
-//   }
-// })
+
 
 //Create wallet for USer
 router.post(
