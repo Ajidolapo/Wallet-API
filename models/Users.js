@@ -13,6 +13,10 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  phone:{
+    type: String,
+    required: true
+  },
   username: {
     type: String,
     required: true,
@@ -25,6 +29,14 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  account_number:{
+    type: String,
+    required: true,
+  },
+  verified : {
+    type: Boolean,
+    default: false
+  },
   beneficiary: [
     {
       name: {
@@ -36,6 +48,10 @@ const UserSchema = new mongoose.Schema({
       bank: {
         type: String,
       },
+      favorite:{
+        type: Boolean,
+        default: false
+      }
     },
   ],
 });

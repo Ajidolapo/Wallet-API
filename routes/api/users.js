@@ -8,6 +8,14 @@ const config = require("config");
 const moment = require("moment");
 const auth = require("../../middleware/auth");
 const {passport, generateToken} = require('./02Auth')
+const nodemailer = require("nodemailer")
+const transporter = nodemailer.createTransport({
+  service:"gmail",
+  auth:{
+    "user":config.get("EMAIL"),
+    pass:config.get("PASS")
+  }
+})
 
 router.get('/google', passport.authenticate('google',{scope:['profile', 'email']}))
 
@@ -19,7 +27,8 @@ router.get('/google/callback', passport.authenticate('google',{failureRedirect:'
 router.post(
   "/",
   [
-    check("name", "Name is Required").not().isEmpty(),
+    check("first_name", "First Name is Required").not().isEmpty(),
+    check("last_name", "Last Name is Required").not().isEmpty(),
     check("email", "Please include avalid email address").isEmail(),
     check("dob", "Put a valid date").custom((value) => {
       if (!moment(value, "MM/DD/YYYY", true).isValid()) {
@@ -42,7 +51,7 @@ router.post(
     if (!error.isEmpty()) {
       return res.status(400).json({ errors: error.array() });
     }
-    let { name, email, username, dob, password } = req.body;
+    let { first_name, last_name, email, username, dob, password, phone } = req.body;
     username = username.toLowerCase();
     try {
       let user_email = await User.findOne({ email });
@@ -55,12 +64,18 @@ router.post(
       if (user_username) {
         return res.status(400).json({ errors: [{ msg: "Username Taken" }] });
       }
+      const name = first_name+" "+last_name
+      const account_number = String(Math.floor(
+        1000000000 + Math.random() * 9000000000
+      ));
       user = new User({
         name,
         email,
         dob,
         username,
         password,
+        phone,
+        account_number
       });
 
       const salt = await bcrypt.genSalt(10);
@@ -74,23 +89,46 @@ router.post(
           id: user.id,
         },
       };
-      jwt.sign(
+      const token = jwt.sign(
         payload,
         config.get("JwtSecret"),
         {
-          expiresIn: 3600000,
-        },
-        (err, token) => {
-          if (err) throw err;
-          res.json({ token });
+          expiresIn: 300,
         }
       );
+      transporter.sendMail({
+        from: config.get("EMAIL"),
+        to: user.email,
+        subject: "Email Verification!",
+        text: `Your verification link is http://localhost:5000/api/users/verify?token=${token}`
+      })
+      res.json({
+        "message":"User created successfully. An email verification link has been sent to you."
+      })
+
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Server Error");
     }
   }
 );
+
+router.get('/verify', async(req, res)=>{
+  const decoded = jwt.verify(req.query.token, config.get("JwtSecret"))
+  const owner = decoded.user
+  const user = await User.findById(owner.id)
+  if(!user){
+    res.status(404).json({
+      errors: [{msg:"User does not exist"}]
+    })
+  }
+  user.verified = true
+  res.status(200).json({
+    "message":"User email verified",
+    "user":user
+  })
+
+})
 
 //Add to beneficiary
 router.post(
@@ -141,4 +179,53 @@ router.post(
     }
   }
 );
+//Favorite or unfavorite a beneficiary
+router.put('/beneficiary/:id',[auth], async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id)
+    if (!user) {
+      return res.status(404).json({ msg: "User does not exist" });
+    }
+    const ben = user.beneficiary.id(req.params.id)
+    if(!ben){
+      return res.status(404).json({ msg: "Invalid Beneficiary" });
+    }
+    ben.favorite = !ben.favorite
+    await user.save()
+    return res.json(ben)
+  } catch (err) {
+    console.error(err.message)
+    return res.status(500).send("Server Error")
+  }
+})
+
+//Get all beneficiary
+router.get('/beneficiary', auth, async (req, res)=>{
+  try {
+    const user = await User.findById(req.user.id)
+    if (!user) {
+      return res.status(404).json({ msg: "User does not exist" });
+    }
+    const ben = user.beneficiary
+    return res.json(ben)
+  } catch (err) {
+    console.error(err.message)
+    return res.status(500).send("server error")    
+  }
+})
+
+//get favorite beneficiaries
+router.get('/beneficiary/fave', auth, async(req, res)=>{
+  try {
+    const user = await User.findById(req.user.id)
+    if(!user){
+      return res.status(404).json({msg:"User does not exist"})
+    }
+    const ben = user.beneficiary.filter(b => b.favorite === true)
+    res.json(ben)
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send("Server Error")    
+  }
+})
 module.exports = router;

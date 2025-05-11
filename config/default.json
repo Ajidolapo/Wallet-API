@@ -1,8 +1,10 @@
 {
-  "URI": "",
+  "URI": "mongodb+srv://olakay739:yfgFoPPsF9WCeEd1@cluster0.y399dbi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
   "JwtSecret": "no tell anybody",
   "FPK": "FLWPUBK_TEST-9492999e7c7903d6433ff1826a5ddb0e-X",
   "FSK": "FLWSECK_TEST-c7f02f831130ade5f071afe1326640f3-X",
   "CLIENT_ID":"1081887121856-mnknoi91rmtsds3d38qltke1emfgp27p.apps.googleusercontent.com",
-  "CLIENT_SECRET":"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"
+  "CLIENT_SECRET":"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",
+  "EMAIL":"olakay739@gmail.com",
+  "PASS":"gvltpkjulsdqfxks"
 }

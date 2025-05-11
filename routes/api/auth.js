@@ -43,6 +43,9 @@ router.post(
           .status(400)
           .json({ errors: [{ msg: "Invalid Credentials" }] });
       }
+      if(!user.verified){
+        return res.status(400).json({errors:[{msg:"Email is unverified"}]})
+      }
       const payload = {
         user: {
           id: user.id,
