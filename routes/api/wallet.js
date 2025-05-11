@@ -5,7 +5,6 @@ const User = require("../../models/Users")
 const auth = require("../../middleware/auth");
 const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
-const config = require("config");
 const Flutterwave = require('flutterwave-node-v3')
 
 

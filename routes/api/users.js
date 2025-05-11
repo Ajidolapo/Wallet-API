@@ -4,7 +4,6 @@ const User = require("../../models/Users");
 const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const config = require("config");
 const moment = require("moment");
 const auth = require("../../middleware/auth");
 const {passport, generateToken} = require('./02Auth')

@@ -3,7 +3,6 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const AppleStrategy = require("passport-apple").Strategy;
 const jwt = require("jsonwebtoken");
 const User = require("../../models/Users");
-const config = require("config")
 require("dotenv").config()
 passport.use(new GoogleStrategy({
  clientID: process.env.CLIENT_ID,
