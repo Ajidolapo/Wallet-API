@@ -114,7 +114,8 @@ router.post(
 );
 
 router.get('/verify', async(req, res)=>{
-  const decoded = jwt.verify(req.query.token, process.env("JwtSecret"))
+  const decoded = jwt.verify(req.query.token, process.env.JwtSecret)
+  console.log(decoded)
   const owner = decoded.user
   const user = await User.findById(owner.id)
   if(!user){
