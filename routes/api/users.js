@@ -100,8 +100,8 @@ router.post(
         from: process.env.EMAIL,
         to: user.email,
         subject: "Email Verification!",
-        text: `Your verification link is http://localhost:5000/api/users/verify?token=${token}`
-      })
+        text: `Your verification link is https://wallet-alpha-three.vercel.app/api/users/verify?token=${token}`,
+      });
       res.json({
         "message":"User created successfully. An email verification link has been sent to you."
       })
