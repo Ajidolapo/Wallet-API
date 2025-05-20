@@ -1,6 +1,5 @@
 const nodemailer = require("nodemailer")
 const Otp = require("../models/Otp")
-const { UPSERT } = require("sequelize/lib/query-types")
 
 const sendEmailOtp = async (email, userId) =>{
  const otp = Math.floor(100000 + Math.random()*900000).toString()
