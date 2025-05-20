@@ -7,7 +7,8 @@ const jwt = require("jsonwebtoken");
 const moment = require("moment");
 const auth = require("../../middleware/auth");
 const {passport, generateToken} = require('./02Auth')
-const nodemailer = require("nodemailer")
+const nodemailer = require("nodemailer");
+const { default: axios } = require("axios");
 require("dotenv").config()
 const transporter = nodemailer.createTransport({
   service:"gmail",
@@ -24,6 +25,17 @@ router.get('/google/callback', passport.authenticate('google',{failureRedirect:'
   res.redirect(`http://localhost:5000/api/auth`)
 })
 
+function isLocalhost(ip) {
+  return (
+    ip === "127.0.0.1" ||
+    ip === "::1" ||
+    ip.startsWith("192.168.") || // common private IPv4
+    ip.startsWith("10.") ||
+    ip.startsWith("172.16.") ||
+    ip.startsWith("172.31.") ||
+    ip.startsWith("::ffff:127.0.0.1") // IPv4 mapped IPv6 localhost
+  );
+}
 router.post(
   "/",
   [
@@ -68,6 +80,27 @@ router.post(
       const account_number = String(Math.floor(
         1000000000 + Math.random() * 9000000000
       ));
+
+      const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+      console.log(ip)
+    
+      const device = req.headers['user-agent']
+      let location = "Unknown"
+      let coordinates = {lat:null, lon:null}
+      if(!isLocalhost(ip)){
+        const geoRes = await axios.get(`http://ip-api.com/json/${ip}`);
+        console.log(geoRes.data);
+        if (geoRes.data.status === "success") {
+          location = `${geoRes.data.city}, ${geoRes.data.regionName}, ${geoRes.data.country}`;
+          coordinates.lat = geoRes.data.lat;
+          coordinates.lon = geoRes.data.lon;
+        }
+      }
+      location = "Agege, Ogun, Nigeria"
+      coordinates = {
+        lat: 6.624225,
+        lon: 3.326148,
+      };
       user = new User({
         name,
         email,
@@ -75,7 +108,23 @@ router.post(
         username,
         password,
         phone,
-        account_number
+        account_number,
+        current_device:{
+          ip,
+          device,
+          location,
+          coordinates
+        },
+        login_history:[
+          {
+            ip,
+            device,
+            location,
+            coordinates,
+            time: new Date()
+          }
+        ]
+
       });
 
       const salt = await bcrypt.genSalt(10);
@@ -116,24 +165,24 @@ router.post(
 router.get('/verify', async(req, res)=>{
   try{
     const decoded = jwt.verify(req.query.token, process.env.JwtSecret)
+    const owner = decoded.user;
+    const user = await User.findById(owner.id);
+    if (!user) {
+      res.status(404).json({
+        errors: [{ msg: "User does not exist" }],
+      });
+    }
+    user.verified = true;
+    user.save()
+    res.status(200).json({
+      message: "User email verified",
+      user: user,
+    });
   }catch(err){
     res.json({
       "message":err.message
     })
   }
-  
-  const owner = decoded.user
-  const user = await User.findById(owner.id)
-  if(!user){
-    res.status(404).json({
-      errors: [{msg:"User does not exist"}]
-    })
-  }
-  user.verified = true
-  res.status(200).json({
-    "message":"User email verified",
-    "user":user
-  })
 
 })
 

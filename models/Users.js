@@ -1,5 +1,19 @@
 const mongoose = require("mongoose");
 
+const LoginSchema = new mongoose.Schema({
+  ip: String,
+  location: String,
+  device: String,
+  time:{
+    type: Date,
+    default: Date.now
+  },
+  coordinates: {
+    lat: Number,
+    lon: Number
+  }
+})
+
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -54,6 +68,21 @@ const UserSchema = new mongoose.Schema({
       }
     },
   ],
+  login_history: [
+    LoginSchema
+  ],
+  current_device: {
+    ip: String,
+    device: String,
+    location: String,
+    coordinates: {
+      lat: Number,
+      lon: Number
+    }
+  },
+  last_mfa_used: {
+    type: String
+  }
 });
 
 module.exports = User = mongoose.model("user", UserSchema);
