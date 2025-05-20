@@ -23,7 +23,10 @@ async function predictRisk(req){
    distance_km: distance,
  }
  try {
-   const res = await axios.post("http://localhost:5001/predict", payload);
+   const res = await axios.post(
+     "https://risk-model.onrender.com/predict",
+     payload
+   );
    const riskNum = res.data.risk;
    console.log(riskNum)
 
