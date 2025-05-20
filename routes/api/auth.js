@@ -78,11 +78,11 @@ router.post(
           coordinates.lon = geoRes.data.lon; 
         }
       }
-      location = "Agege, Ogun, Nigeria";
+      else{location = "Agege, Ogun, Nigeria";
       coordinates = {
         lat: 6.624225,
         lon: 3.326148,
-      };
+      };}
       req.user = user;
       req.headers["user-agent"] = device
       req.connection.remoteAddress = ip
