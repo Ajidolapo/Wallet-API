@@ -7,6 +7,7 @@ const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const {sendEmailOtp, verifyOtp} = require("../../utils/EmailOtp")
 const predictRisk = require("../../utils/riskModel")
+const axios = require("axios")
 require("dotenv").config()
 
 function isLocalhost(ip) {
