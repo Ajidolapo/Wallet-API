@@ -204,7 +204,7 @@ router.post("/biometric/register", async (req, res) => {
 
     const options = await generateRegistrationOptions({
       rpName: "Wallet",
-      rpID: "wallet-alpha-three.vercel.app", // update to real domain in production
+      rpID: "wallet-fe-nu.vercel.app", // update to real domain in production
       userID: isoUint8Array.fromUTF8String(userId),
       userName: user.email,
       timeout: 60000,
@@ -237,7 +237,7 @@ router.post("/biometric/register-verify", async (req, res) => {
       response: credentialResponse,
       expectedChallenge: user.challenge,
       expectedOrigin: "https://wallet-fe-nu.vercel.app",
-      expectedRPID: "wallet-alpha-three.vercel.app",
+      expectedRPID: "wallet-fe-nu.vercel.app",
     });
 
     if (!verification.verified) {
@@ -294,7 +294,7 @@ router.post("/biometric/generate", async (req, res) => {
 
     // Generate options without allowCredentials to avoid formatting issues
     const options = await generateAuthenticationOptions({
-      rpID: "wallet-alpha-three.vercel.app",
+      rpID: "wallet-fe-nu.vercel.app",
       timeout: 60000,
       userVerification: "preferred",
       // allowCredentials: user.credentials.map((cred) => ({
@@ -320,7 +320,7 @@ router.post("/biometric/verify", async (req, res) => {
   try {
     const { userId, credentialResponse } = req.body;
     console.log("Credential response:", credentialResponse);
-
+    
     const user = await User.findById(userId);
     if (!user || !user.challenge || !user.credentials.length) {
       return res
@@ -338,7 +338,7 @@ router.post("/biometric/verify", async (req, res) => {
         response: credentialResponse,
         expectedChallenge: user.challenge,
         expectedOrigin: "https://wallet-fe-nu.vercel.app",
-        expectedRPID: "wallet-alpha-three.vercel.app",
+        expectedRPID: "wallet-fe-nu.vercel.app",
         credential: {
           // Use the credential data from the response itself
           id: base64url.decode(credentialResponse.id),
@@ -356,7 +356,7 @@ router.post("/biometric/verify", async (req, res) => {
 
     console.log("Verification result:", verification);
 
-    if (verification) {
+    if (verification.verified) {
       credential.counter = verification.authenticationInfo.newCounter;
       user.challenge = undefined;
       await user.save();
