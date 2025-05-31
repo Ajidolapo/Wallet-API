@@ -204,7 +204,7 @@ router.post("/biometric/register", async (req, res) => {
 
     const options = await generateRegistrationOptions({
       rpName: "Wallet",
-      rpID: "localhost", // update to real domain in production
+      rpID: "wallet-alpha-three.vercel.app", // update to real domain in production
       userID: isoUint8Array.fromUTF8String(userId),
       userName: user.email,
       timeout: 60000,
@@ -236,8 +236,8 @@ router.post("/biometric/register-verify", async (req, res) => {
     const verification = await verifyRegistrationResponse({
       response: credentialResponse,
       expectedChallenge: user.challenge,
-      expectedOrigin: "http://localhost:3000",
-      expectedRPID: "localhost",
+      expectedOrigin: "https://wallet-fe-nu.vercel.app",
+      expectedRPID: "wallet-alpha-three.vercel.app",
     });
 
     if (!verification.verified) {
@@ -294,7 +294,7 @@ router.post("/biometric/generate", async (req, res) => {
 
     // Generate options without allowCredentials to avoid formatting issues
     const options = await generateAuthenticationOptions({
-      rpID: "localhost",
+      rpID: "wallet-alpha-three.vercel.app",
       timeout: 60000,
       userVerification: "preferred",
       // allowCredentials: user.credentials.map((cred) => ({
@@ -337,8 +337,8 @@ router.post("/biometric/verify", async (req, res) => {
       verification = await verifyAuthenticationResponse({
         response: credentialResponse,
         expectedChallenge: user.challenge,
-        expectedOrigin: "http://localhost:3000",
-        expectedRPID: "localhost",
+        expectedOrigin: "https://wallet-fe-nu.vercel.app",
+        expectedRPID: "wallet-alpha-three.vercel.app",
         credential: {
           // Use the credential data from the response itself
           id: base64url.decode(credentialResponse.id),
