@@ -14,6 +14,12 @@ const LoginSchema = new mongoose.Schema({
   }
 })
 
+const webAuthCredential = new mongoose.Schema({
+  credentialID: Buffer,
+  credentialPublicKey: Buffer,
+  counter: Number
+})
+
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -51,6 +57,8 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  challenge: String,
+  credentials: [webAuthCredential],
   beneficiary: [
     {
       name: {

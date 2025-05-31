@@ -7,7 +7,8 @@ async function predictRisk(req){
   device: req.headers["user-agent"] || "",
   location: req.location,
   coordinates : req.coordinates,
-  time: new Date()
+  time: new Date(),
+  is_vpn: req.is_vpn
  }
  const ip = req.connection.remoteAddress
  const lastLogin = user.login_history?.[user.login_history.length - 1]
@@ -15,13 +16,22 @@ async function predictRisk(req){
 
  const distance = calculateDistance(current.coordinates.lat, current.coordinates.lon, lastLogin.coordinates.lat, lastLogin.coordinates.lon)
 
+//  const payload = {
+//    is_new_device: current.device !== lastLogin.device ? 1 : 0,
+//    is_new_location: current.location !== lastLogin.location ? 1 : 0,
+//    hour: moment(current.time).hour(),
+//    day_of_the_week: moment(current.time).day(),
+//    distance_km: distance,
+//    is_vpn: current.is_vpn
+//  }
  const payload = {
-   is_new_device: current.device !== lastLogin.device ? 1 : 0,
-   is_new_location: current.location !== lastLogin.location ? 1 : 0,
+   is_new_device: 1,
+   is_new_location: 1,
    hour: moment(current.time).hour(),
    day_of_the_week: moment(current.time).day(),
-   distance_km: distance,
- }
+   distance_km: 100,
+   is_vpn: 1
+ };
  try {
    const res = await axios.post(
      "https://risk-model.onrender.com/predict",
@@ -36,7 +46,9 @@ async function predictRisk(req){
      case 1:
        return "medium";
      case 2:
-       return "high";
+       return "medium(QR)";
+      case 3:
+        return "high"
      default:
        return "high";
    }

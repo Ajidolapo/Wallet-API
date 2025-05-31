@@ -88,12 +88,14 @@ router.post(
       let location = "Unknown"
       let coordinates = {lat:null, lon:null}
       if(!isLocalhost(ip)){
-        const geoRes = await axios.get(`http://ip-api.com/json/${ip}`);
-        console.log(geoRes.data);
-        if (geoRes.data.status === "success") {
-          location = `${geoRes.data.city}, ${geoRes.data.regionName}, ${geoRes.data.country}`;
-          coordinates.lat = geoRes.data.lat;
-          coordinates.lon = geoRes.data.lon;
+        const geoRes = await axios.get(
+                  `https://ipqualityscore.com/api/json/ip/AfDQ2R79QdigkZe6idS7mLTRWz4wrm49/${ip}`
+                );
+                console.log(geoRes)
+                if (geoRes.data.success === true){
+                  location = `${geoRes.data.city}, ${geoRes.data.region}, ${geoRes.data.country_code}`;
+                  coordinates.lat = geoRes.data.latitude;
+                  coordinates.lon = geoRes.data.longitude;
         }
       }
       location = "Agege, Ogun, Nigeria"
