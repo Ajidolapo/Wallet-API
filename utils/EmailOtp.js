@@ -32,7 +32,7 @@ const sendEmailOtp = async (email, userId) =>{
 // }
 // await transporter.sendMail(mailOptions)
 await Resend.emails.send({
-  from: "Secure Wallet <otp@securewallet.com>",
+  from: "OTPnoreply <olakay739@gmail.com>",
   to: email,
   subject: "Your OTP for login",
   text: `Your OTP is ${otp}. It will expire in 5 minutes`,

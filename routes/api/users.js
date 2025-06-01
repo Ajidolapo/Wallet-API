@@ -156,7 +156,7 @@ router.post(
       //   text: `Your verification link is https://wallet-alpha-three.vercel.app/api/users/verify?token=${token}`,
       // });
       await Resend.emails.send({
-        from: "Secure Wallet <reg@securewallet.com>",
+        from: "Regnoreply <olakay739@gmail.com>",
         to: user.email,
         subject: "Email Verification",
         html: `<p>Verify here: <a href="https://wallet-alpha-three.vercel.app/api/users/verify?token=${token}">Link</a></p>`,
