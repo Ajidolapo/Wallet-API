@@ -1,5 +1,7 @@
 const nodemailer = require("nodemailer")
 const Otp = require("../models/Otp")
+const resend = require('resend')
+const Resend = new resend.Resend(process.env.RESEND_API_KEY)
 
 const sendEmailOtp = async (email, userId) =>{
  const otp = Math.floor(100000 + Math.random()*900000).toString()
@@ -14,21 +16,27 @@ const sendEmailOtp = async (email, userId) =>{
  upsert: true, new: true
 })
 
-const transporter = nodemailer.createTransport({
- service:"Gmail",
- auth:{
-  user: process.env.EMAIL,
-  pass: process.env.PASS
- }
-})
+// const transporter = nodemailer.createTransport({
+//  service:"Gmail",
+//  auth:{
+//   user: process.env.EMAIL,
+//   pass: process.env.PASS
+//  }
+// })
 
-const mailOptions = {
- from: process.env.EMAIL,
- to: email,
- subject: "Your OTP for Login",
- text: `Your OTP is ${otp}. It will expire in 5 minutes`
-}
-await transporter.sendMail(mailOptions)
+// const mailOptions = {
+//  from: process.env.EMAIL,
+//  to: email,
+//  subject: "Your OTP for Login",
+//  text: `Your OTP is ${otp}. It will expire in 5 minutes`
+// }
+// await transporter.sendMail(mailOptions)
+await Resend.emails.send({
+  from: "Secure Wallet <otp@securewallet.com>",
+  to: email,
+  subject: "Your OTP for login",
+  text: `Your OTP is ${otp}. It will expire in 5 minutes`,
+});
 }
 
 const verifyOtp = async(userId, otp) => {
