@@ -54,7 +54,7 @@ async function predictRisk(req){
    }
  } catch (err) {
    console.error("Risk prediction API error:", err.message);
-   return "low"; // Fallback to safe
+   return "high"; // Fallback to safe
  }
 }
 
