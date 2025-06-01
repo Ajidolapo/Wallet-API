@@ -232,7 +232,7 @@ router.post("/biometric/register-verify", async (req, res) => {
     if (!user || !user.challenge) {
       return res.status(400).json({ message: "No challenge found" });
     }
-
+    
     const verification = await verifyRegistrationResponse({
       response: credentialResponse,
       expectedChallenge: user.challenge,
@@ -297,10 +297,10 @@ router.post("/biometric/generate", async (req, res) => {
       rpID: "wallet-fe-nu.vercel.app",
       timeout: 60000,
       userVerification: "preferred",
-      // allowCredentials: user.credentials.map((cred) => ({
-      //   id: base64url.encode(cred.credentialID),
-      //   type: "public-key",
-      // })),
+      allowCredentials: user.credentials.map((cred) => ({
+        id: base64url.encode(cred.credentialID),
+        type: "public-key",
+      })),
     });
 
     user.challenge = options.challenge;

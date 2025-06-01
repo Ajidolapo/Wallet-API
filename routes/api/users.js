@@ -10,15 +10,13 @@ const {passport, generateToken} = require('./02Auth')
 const nodemailer = require("nodemailer");
 const { default: axios } = require("axios");
 require("dotenv").config()
-const resend = require('resend')
-const Resend = new resend.Resend(process.env.RESEND_API_KEY)
-// const transporter = nodemailer.createTransport({
-//   service:"gmail",
-//   auth:{
-//     "user":process.env.EMAIL,
-//     pass:process.env.PASS
-//   }
-// })
+const transporter = nodemailer.createTransport({
+  service:"gmail",
+  auth:{
+    "user":process.env.EMAIL,
+    pass:process.env.PASS
+  }
+})
 
 router.get('/google', passport.authenticate('google',{scope:['profile', 'email']}))
 
@@ -149,17 +147,11 @@ router.post(
           expiresIn: 300,
         }
       );
-      // transporter.sendMail({
-      //   from: process.env.EMAIL,
-      //   to: user.email,
-      //   subject: "Email Verification!",
-      //   text: `Your verification link is https://wallet-alpha-three.vercel.app/api/users/verify?token=${token}`,
-      // });
-      await Resend.emails.send({
-        from: "Regnoreply <olakay739@gmail.com>",
+      transporter.sendMail({
+        from: process.env.EMAIL,
         to: user.email,
-        subject: "Email Verification",
-        html: `<p>Verify here: <a href="https://wallet-alpha-three.vercel.app/api/users/verify?token=${token}">Link</a></p>`,
+        subject: "Email Verification!",
+        text: `Your verification link is https://wallet-alpha-three.vercel.app/api/users/verify?token=${token}`,
       });
       res.json({
         "message":"User created successfully. An email verification link has been sent to you."
