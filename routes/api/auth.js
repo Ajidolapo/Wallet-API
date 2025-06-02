@@ -303,8 +303,7 @@ router.post("/biometric/generate", async (req, res) => {
       },
       allowCredentials: user.credentials.map((cred) => ({
         id: base64url.encode(cred.credentialID),
-        type: "public-key",
-        transports:["internal"]
+        type: "public-key"
       })),
     });
 
