@@ -297,9 +297,14 @@ router.post("/biometric/generate", async (req, res) => {
       rpID: "wallet-fe-nu.vercel.app",
       timeout: 60000,
       userVerification: "preferred",
+      authenticatorSelection:{
+        authenticatorAttachment:"platform",
+        userVerification:"preferred"
+      },
       allowCredentials: user.credentials.map((cred) => ({
         id: base64url.encode(cred.credentialID),
         type: "public-key",
+        transports:["internal"]
       })),
     });
 
