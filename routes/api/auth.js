@@ -137,6 +137,7 @@ router.post(
           message: "Suspicious Login. an OTP sent to email. Please verify to continue.",
           risk,
           step: "email_otp",
+          email:user.email
         });
       }
       if(risk==="medium(QR)"){
@@ -147,7 +148,7 @@ router.post(
           risk,
           step: "qr_code",
           qr,
-          userId: user.id
+          email: user.email
         });
       }
       return res.status(202).json({
@@ -163,37 +164,42 @@ router.post(
   }
 );
 
-router.post("/verify-otp", async(req, res) => {
-  const {email, otp} = req.body
-  try{
-    const user = await User.findOne({email})
-    if(!user){
-      res.status(404).send("User with email not found")
+router.post("/verify-otp", async (req, res) => {
+  const { email, otp } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).send("User with email not found");
     }
-    const verified = await verifyOtp(user.id,otp)
-    if(!verified){
-      res.status(400).send("Invalid or Expired OTP")
+
+    const verified = await verifyOtp(user.id, otp);
+    if (!verified) {
+      return res.status(400).send("Invalid or Expired OTP");
     }
+
     const payload = {
-        user: {
-          id: user.id,
-        },
-      };
-      jwt.sign(
-        payload,
-        process.env.JwtSecret,
-        {
-          expiresIn: 3600000,
-        },
-        (err, token) => {
-          if (err) throw err;
-          res.json({ user, token });
-        }
-      )
-  }catch(err){
-    res.status(500).send(err.message)
+      user: {
+        id: user.id,
+      },
+    };
+
+    jwt.sign(
+      payload,
+      process.env.JwtSecret,
+      {
+        expiresIn: 3600000,
+      },
+      (err, token) => {
+        if (err) throw err;
+        return res.json({ user, token });
+      }
+    );
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send(err.message);
   }
-})
+});
+
 
 
 router.post("/biometric/register", async (req, res) => {
@@ -201,7 +207,7 @@ router.post("/biometric/register", async (req, res) => {
     const { userId } = req.body;
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
-
+    
     const options = await generateRegistrationOptions({
       rpName: "Wallet",
       rpID: "wallet-fe-nu.vercel.app", // update to real domain in production
@@ -293,7 +299,9 @@ router.post("/biometric/generate", async (req, res) => {
     console.log("User has", user.credentials.length, "credentials");
 
     // Generate options without allowCredentials to avoid formatting issues
-    const options = await generateAuthenticationOptions({
+    let options
+    if(process.env.PROD === "true"){
+      options = await generateAuthenticationOptions({
       rpID: "wallet-fe-nu.vercel.app",
       timeout: 60000,
       userVerification: "required",
@@ -306,7 +314,21 @@ router.post("/biometric/generate", async (req, res) => {
 
     user.challenge = options.challenge;
     await user.save();
+  }
+    else{
+      options = await generateAuthenticationOptions({
+      rpID: "localhost",
+      timeout: 60000,
+      userVerification: "required",
+      authenticatorAttachment: "platform",
+      // allowCredentials: user.credentials.map((cred) => ({
+      //   id: base64url.encode(cred.credentialID),
+      //   type: "public-key"
+      // })),
+    });
 
+    user.challenge = options.challenge;
+    await user.save();}
     console.log("Generated authentication options successfully");
     console.log(options)
     res.json(options);
@@ -335,7 +357,8 @@ router.post("/biometric/verify", async (req, res) => {
 
     let verification;
     try {
-      verification = await verifyAuthenticationResponse({
+      if(process.env.PROD==="true"){
+        verification = await verifyAuthenticationResponse({
         response: credentialResponse,
         expectedChallenge: user.challenge,
         expectedOrigin: "https://wallet-fe-nu.vercel.app",
@@ -347,6 +370,20 @@ router.post("/biometric/verify", async (req, res) => {
           counter: credential.counter,
         },
       });
+    }
+      else {
+        verification = await verifyAuthenticationResponse({
+        response: credentialResponse,
+        expectedChallenge: user.challenge,
+        expectedOrigin: "http://localhost:3000",
+        expectedRPID: "localhost",
+        credential: {
+          // Use the credential data from the response itself
+          id: base64url.decode(credentialResponse.id),
+          publicKey: credential.credentialPublicKey, // Keep the stored public key
+          counter: credential.counter,
+        },
+      });}
     } catch (error) {
       console.error("Error verifying authentication response:", error);
       return res.status(400).json({
@@ -357,7 +394,7 @@ router.post("/biometric/verify", async (req, res) => {
 
     console.log("Verification result:", verification);
 
-    if (verification.verified) {
+    if (verification) {
       credential.counter = verification.authenticationInfo.newCounter;
       user.challenge = undefined;
       await user.save();

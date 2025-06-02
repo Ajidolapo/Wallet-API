@@ -29,8 +29,8 @@ async function predictRisk(req){
    is_new_location: 1,
    hour: moment(current.time).hour(),
    day_of_the_week: moment(current.time).day(),
-   distance_km: 100,
-   is_vpn: 1
+   distance_km: 400,
+   is_vpn: 0
  };
  try {
    const res = await axios.post(
