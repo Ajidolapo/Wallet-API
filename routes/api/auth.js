@@ -296,15 +296,12 @@ router.post("/biometric/generate", async (req, res) => {
     const options = await generateAuthenticationOptions({
       rpID: "wallet-fe-nu.vercel.app",
       timeout: 60000,
-      userVerification: "preferred",
-      authenticatorSelection:{
-        authenticatorAttachment:"platform",
-        userVerification:"preferred"
-      },
-      allowCredentials: user.credentials.map((cred) => ({
-        id: base64url.encode(cred.credentialID),
-        type: "public-key"
-      })),
+      userVerification: "required",
+      authenticatorAttachment:"platform",
+      // allowCredentials: user.credentials.map((cred) => ({
+      //   id: base64url.encode(cred.credentialID),
+      //   type: "public-key"
+      // })),
     });
 
     user.challenge = options.challenge;
