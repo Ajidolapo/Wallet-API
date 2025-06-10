@@ -67,7 +67,8 @@ router.post(
         return res.status(400).json({errors:[{msg:"Email is unverified"}]})
       }
 
-      const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+      const ipHeader = req.headers['x-forwarded-for'];
+      const ip = ipHeader ? ipHeader.split(',')[0].trim() : req.connection.remoteAddress;
       const device = req.headers['user-agent'] || ""
       let location = "Unknown"
       let coordinates = {

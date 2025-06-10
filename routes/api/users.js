@@ -82,8 +82,8 @@ router.post(
         1000000000 + Math.random() * 9000000000
       ));
 
-      const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-      console.log(ip)
+      const ipHeader = req.headers['x-forwarded-for'];
+      const ip = ipHeader ? ipHeader.split(',')[0].trim() : req.connection.remoteAddress;
     
       const device = req.headers['user-agent']
       let location = "Unknown"
